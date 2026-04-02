@@ -1,6 +1,6 @@
 ﻿namespace VitacoreTestApp.Services
 {
-    public class EmailService
+    public class AuctionServise
     {
     }
 }
