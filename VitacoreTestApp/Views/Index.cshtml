@@ -1,5 +1,29 @@
 ﻿@*
+
 *@
+@Model Vita
 @{
-ViewBag.Title= "Auction Main page";
+   
+    ViewBag.Title = "Man Auction page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<div class="container">
+<h1 class="dispaly-4">
+Auction main page
+</h1>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <img class="card-img-top"
+                scr="@{Model.Lot.Image}">
+                <div class="card-body">
+                <h5 class="card-title">
+                  @{Model.Lot.Name}  
+                </h5>
+                <p class="font-weight-bold">
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
