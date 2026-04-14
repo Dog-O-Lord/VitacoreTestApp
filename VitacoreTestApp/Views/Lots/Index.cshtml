@@ -1,0 +1,54 @@
+﻿@model List<VitacoreTestApp.ViewModels.Lot>
+
+@{
+    ViewBag.Title = "Mandarine Auction";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">🍊 Mandarine Auction</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-info">@TempData["Info"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <p class="text-muted">No active lots right now. Check back soon!</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var lot in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@lot.ImageUrl" class="card-img-top" style="height:200px; object-fit:cover;" alt="Mandarine" />
+                        <div class="card-body">
+                            <h5 class="card-title">@lot.Description</h5>
+                            <p class="mb-1">
+                                <strong>Current bid:</strong> @lot.CurrentBid.ToString("C")
+                            </p>
+                            <p class="mb-1">
+                                <strong>Buyout price:</strong> @lot.BuyoutPrice.ToString("C")
+                            </p>
+                            <p class="text-muted mb-3">
+                                <strong>Ends:</strong> @lot.EndTime.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                            </p>
+                            <a href="/Lots/Details/@lot.Id" class="btn btn-warning w-100">View Lot</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

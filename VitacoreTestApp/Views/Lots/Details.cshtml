@@ -1,0 +1,147 @@
+@model VitacoreTestApp.ViewModels.LotDetailsViewModel
+
+@{
+    ViewBag.Title = Model.Lot.Description;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-info">@TempData["Info"]</div>
+    }
+
+    <div class="row">
+        <div class="col-md-5">
+            <img src="@Model.Lot.ImageUrl"
+                 class="img-fluid rounded shadow"
+                 alt="Mandarine" />
+        </div>
+
+        <div class="col-md-7">
+            <h2>@Model.Lot.Description</h2>
+
+            <p>
+                <strong>Status:</strong>
+                <span class="badge @(Model.Lot.Status == "Active" ? "bg-success" : Model.Lot.Status == "Completed" ? "bg-secondary" : "bg-danger")">
+                    @Model.Lot.Status
+                </span>
+            </p>
+
+            <p><strong>Current bid:</strong> @Model.Lot.CurrentBid.ToString("C")</p>
+            <p><strong>Buyout price:</strong> @Model.Lot.BuyoutPrice.ToString("C")</p>
+
+            @if (Model.IsAuctionEnded)
+            {
+                <p class="text-danger fw-bold">This auction has ended.</p>
+            }
+            else
+            {
+                <p>
+                    <strong>Time remaining:</strong>
+                    @if (Model.TimeRemaining.Days > 0)
+                    {
+                        @($"{Model.TimeRemaining.Days}d {Model.TimeRemaining.Hours}h {Model.TimeRemaining.Minutes}m")
+                    }
+                    else if (Model.TimeRemaining.Hours > 0)
+                    {
+                        @($"{Model.TimeRemaining.Hours}h {Model.TimeRemaining.Minutes}m")
+                    }
+                    else
+                    {
+                        <span class="text-danger fw-bold">@($"{Model.TimeRemaining.Minutes}m {Model.TimeRemaining.Seconds}s")</span>
+                    }
+                </p>
+            }
+
+            @if (Model.CurrentUser != null && Model.UserHighestBid > 0)
+            {
+                <p class="text-info">Your highest bid: @Model.UserHighestBid?.ToString("C")</p>
+            }
+
+            @if (!Model.IsAuctionEnded && Model.Lot.Status == "Active")
+            {
+                @if (Model.CurrentUser == null)
+                {
+                    <div class="alert alert-warning mt-3">
+                        <a href="/Account/Login">Log in</a> or
+                        <a href="/Account/Register">register</a>
+                        to place a bid or buy out this lot.
+                    </div>
+                }
+                else
+                {
+                    <div class="card mt-3 p-3">
+                        <h5>Place a Bid</h5>
+                        <form method="post" action="/Lots/PlaceBid">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lotId" value="@Model.Lot.Id" />
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number"
+                                       name="amount"
+                                       class="form-control"
+                                       step="0.01"
+                                       min="@(Model.Lot.CurrentBid + 0.01m)"
+                                       placeholder="Enter your bid" />
+                                <button type="submit" class="btn btn-primary">Bid</button>
+                            </div>
+                            <small class="text-muted">Must be higher than @Model.Lot.CurrentBid.ToString("C")</small>
+                        </form>
+                    </div>
+
+                    <div class="card mt-3 p-3">
+                        <h5>Buy Out Immediately</h5>
+                        <p>Pay <strong>@Model.Lot.BuyoutPrice.ToString("C")</strong> to win this lot right now.</p>
+                        <form method="post" action="/Lots/Buyout">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lotId" value="@Model.Lot.Id" />
+                            <button type="submit" class="btn btn-success">Buy Out</button>
+                        </form>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Bid History</h4>
+        @if (!Model.Bids.Any())
+        {
+            <p class="text-muted">No bids yet. Be the first!</p>
+        }
+        else
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bid in Model.Bids)
+                    {
+                        <tr>
+                            <td>@bid.User.Username</td>
+                            <td>@bid.Amount.ToString("C")</td>
+                            <td>@bid.Timestamp.ToLocalTime().ToString("dd MMM HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <a href="/Lots/Index" class="btn btn-outline-secondary mt-3">← Back to Auction</a>
+</div>
